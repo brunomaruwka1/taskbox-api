@@ -62,14 +62,21 @@ def health():
 
 
 @app.get("/tasks")
-def list_tasks():
+def list_tasks(done: bool | None = None):
     with get_connection() as conn:
-        rows = conn.execute("""
-            SELECT id, title, done, created_at
-            FROM tasks
-            ORDER BY id DESC
-        """).fetchall()
-
+        if done is None:
+            rows = conn.execute("""
+                SELECT id, title, done, created_at
+                FROM tasks
+                ORDER BY id DESC
+            """).fetchall()
+        else:
+            rows = conn.execute("""
+                SELECT id, title, done, created_at
+                FROM tasks
+                WHERE done = %s
+                ORDER BY id DESC
+            """, (done,)).fetchall()        
     return rows
 
 
